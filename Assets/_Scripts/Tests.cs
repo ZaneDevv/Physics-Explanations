@@ -5,14 +5,17 @@ using Physics.Arrow;
 {
     private void Start()
     {
-        Arrow2D arrow = new Arrow2D(
+        Arrow2D arrow0 = new Arrow2D(
             originPoint: new Vector2(0, 0),
             magnitude: 20, 
-            theta: 45, 
-            width: 10
+            width: 10,
+            theta: 45 
         );
 
-        arrow.SetColor(Color.red);
+        arrow0.SetColor(Color.green);
+
+        Arrow2D arrow1 = new Arrow2D(Vector2.zero, Vector2.right * 200, 3);
+        arrow1.SetColor(Color.red);
     }
 
     private void Update()

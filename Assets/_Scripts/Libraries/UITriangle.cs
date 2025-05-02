@@ -6,8 +6,20 @@ namespace Physics.Arrow.Graphics
     [RequireComponent(typeof(CanvasRenderer))]
     internal class UITriangle : Graphic
     {
-        private float width = 100f;
-        private float height = 100f;
+        [SerializeField, Min(0)] private float width = 100f;
+        [SerializeField, Min(0)] private float height = 100f;
+
+        internal float Width
+        {
+            get => this.width;
+            set { this.width = value; SetVerticesDirty(); }
+        }
+        internal float Height
+        {
+            get => this.height;
+            set { this.height = value; SetVerticesDirty(); }
+        }
+
 
         protected override void OnPopulateMesh(VertexHelper vertexHelper)
         {
@@ -22,14 +34,6 @@ namespace Physics.Arrow.Graphics
             vertexHelper.AddVert(point2, color, Vector2.zero);
 
             vertexHelper.AddTriangle(0, 1, 2);
-        }
-
-        internal void SetSize(float width, float height)
-        {
-            this.width = width;
-            this.height = height;
-
-            SetVerticesDirty();
         }
     }
 }

@@ -6,10 +6,13 @@ namespace Physics.Arrow
 {
     internal class Arrow2D
     {
+        private const float TRIANGLE_SIZE_WITH_RESPECT_TO_WIDTH = 4;
+
         // Attributes \\
         private Vector2 originPoint = Vector2.zero;
         private float magnitude = 0;
         private float width = 0;
+        private float theta = 0;
         private Quaternion quaternion = Quaternion.identity;
 
         private GameObject Line;
@@ -18,18 +21,21 @@ namespace Physics.Arrow
         private Transform Canvas;
 
 
+
         // Constructors \\
         internal Arrow2D(Vector2 originPoint, float magnitude, float theta, float width)
         {
             this.originPoint = originPoint;
             this.magnitude = magnitude;
             this.width = width;
-            this.quaternion = new Quaternion(0, 0, Mathf.Sin(theta), Mathf.Cos(theta));
+            this.theta = theta;
 
+            this.quaternion = new Quaternion(0, 0, Mathf.Sin(theta * 0.5f), Mathf.Cos(theta * 0.5f));
             this.Canvas = GameObject.Find("Canvas").transform;
 
-            this.Render();
+            this.SetGraphics();
         }
+
 
         internal Arrow2D(Vector2 originPoint, Vector2 targetPoint, float width)
         {
@@ -37,56 +43,70 @@ namespace Physics.Arrow
             this.magnitude = Vector2.Distance(originPoint, targetPoint);
             this.width = width;
 
-            float theta = Vector2.Angle(originPoint, targetPoint) * Mathf.Deg2Rad;
+            Vector2 direction = targetPoint - originPoint;
+            float theta = Mathf.Atan2(direction.y, direction.x);
 
-            this.quaternion = new Quaternion(0, 0, Mathf.Sin(theta), Mathf.Cos(theta));
+            this.theta = theta;
 
+            this.quaternion = new Quaternion(0, 0, Mathf.Sin(theta * 0.5f), Mathf.Cos(theta * 0.5f));
             this.Canvas = GameObject.Find("Canvas").transform;
 
-            this.Render();
+            this.SetGraphics();
         }
 
 
         // Methods \\
 
         /// <summary>
-        /// Renders the arrow
+        /// Creates the graphics for the line
         /// </summary>
-        internal void Render()
+        private void SetGraphics()
         {
             // Create the line
             this.Line = new GameObject("UILine");
-            RectTransform rectTransform = this.Line.AddComponent<RectTransform>();
-            rectTransform.sizeDelta = new Vector2(this.width, this.magnitude);
-            rectTransform.anchoredPosition = Vector2.zero;
-            rectTransform.rotation = this.quaternion;
+            this.Line.transform.SetParent(this.Canvas, false);
+
+            RectTransform lineTransform = this.Line.AddComponent<RectTransform>();
+            lineTransform.anchorMin = new Vector2(0.5f, 0.5f);
+            lineTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            lineTransform.pivot = new Vector2(0.5f, 0f);
+            lineTransform.sizeDelta = new Vector2(this.width, this.magnitude);
+            lineTransform.anchoredPosition = this.originPoint;
+            lineTransform.localRotation = this.quaternion;
 
             Image image = this.Line.AddComponent<Image>();
             image.color = Color.red;
 
-            this.Line.transform.SetParent(this.Canvas, false);
-
             // Create the triangle
+            float triangleSize = this.width * TRIANGLE_SIZE_WITH_RESPECT_TO_WIDTH;
+
             this.Triangle = new GameObject("Triangle");
-
-            RectTransform triRect = this.Triangle.AddComponent<RectTransform>();
-            triRect.anchoredPosition = new Vector2(0, this.magnitude * 0.5f);
-            triRect.rotation = this.quaternion;
-
             this.Triangle.transform.SetParent(this.Canvas, false);
+
+            RectTransform triangleTransform = this.Triangle.AddComponent<RectTransform>();
+            triangleTransform.anchorMin = new Vector2(0.5f, 0.5f);
+            triangleTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            triangleTransform.pivot = new Vector2(0.5f, 0f);
+            triangleTransform.localRotation = this.quaternion;
+            triangleTransform.sizeDelta = new Vector2(triangleSize, triangleSize);
+            triangleTransform.anchoredPosition = this.originPoint + this.magnitude * new Vector2(-Mathf.Sin(this.theta), Mathf.Cos(this.theta));
 
             UITriangle triangleGraphics = this.Triangle.AddComponent<UITriangle>();
             triangleGraphics.color = Color.red;
+            triangleGraphics.Width = triangleGraphics.Height = triangleSize;
+
+            triangleGraphics.SetAllDirty();
+            this.Triangle.transform.SetAsLastSibling();
         }
 
 
         /// <summary>
         /// Sets the color of the arrow
         /// </summary>
-        /// <param name="color"></param>
+        /// <param name="color">Color to apply</param>
         internal void SetColor(Color color) {
             this.Line.GetComponent<Image>().color = color;
-           // this.Triangle.GetComponent<Image>().color = color;
+            this.Triangle.GetComponent<UITriangle>().color = color;
         }
 
 
