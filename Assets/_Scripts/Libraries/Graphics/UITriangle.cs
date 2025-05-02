@@ -12,12 +12,18 @@ namespace Physics.Arrow.Graphics
         internal float Width
         {
             get => this.width;
-            set { this.width = value; SetVerticesDirty(); }
+            set {
+                this.width = value;
+                SetVerticesDirty();
+            }
         }
         internal float Height
         {
             get => this.height;
-            set { this.height = value; SetVerticesDirty(); }
+            set {
+                this.height = value;
+                SetVerticesDirty();
+            }
         }
 
 

@@ -1,25 +1,20 @@
 using UnityEngine;
-using Physics.Arrow;
+using Physics.Fields;
 
 [DisallowMultipleComponent] internal sealed class Tests : MonoBehaviour
 {
     private void Start()
     {
-        Arrow2D arrow0 = new Arrow2D(
-            originPoint: new Vector2(0, 0),
-            magnitude: 20, 
-            width: 10,
-            theta: 45 
+        VectorField2D field = new VectorField2D(
+            function: VectorFieldFunction,
+            xIterations: 20,
+            yIterations: 20,
+            gap: 20
         );
-
-        arrow0.SetColor(Color.green);
-
-        Arrow2D arrow1 = new Arrow2D(Vector2.zero, Vector2.right * 200, 3);
-        arrow1.SetColor(Color.red);
     }
 
-    private void Update()
+    private Vector2 VectorFieldFunction(Vector2 point)
     {
-        
+        return -point.normalized * 10;
     }
 }

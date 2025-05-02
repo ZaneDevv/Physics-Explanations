@@ -9,17 +9,18 @@ namespace Physics.Arrow
         private const float TRIANGLE_SIZE_WITH_RESPECT_TO_WIDTH = 4;
 
         // Attributes \\
-        private Vector2 originPoint = Vector2.zero;
         private float magnitude = 0;
         private float width = 0;
         private float theta = 0;
+        private float opacity = 1;
+
+        private Vector2 originPoint = Vector2.zero;
         private Quaternion quaternion = Quaternion.identity;
 
         private GameObject Line;
         private GameObject Triangle;
 
         private Transform Canvas;
-
 
 
         // Constructors \\
@@ -63,8 +64,11 @@ namespace Physics.Arrow
         private void SetGraphics()
         {
             // Create the line
-            this.Line = new GameObject("UILine");
-            this.Line.transform.SetParent(this.Canvas, false);
+            GameObject arrow = new GameObject("Arrow");
+            arrow.transform.SetParent(this.Canvas, false);
+
+            this.Line = new GameObject("Line");
+            this.Line.transform.SetParent(arrow.transform, false);
 
             RectTransform lineTransform = this.Line.AddComponent<RectTransform>();
             lineTransform.anchorMin = new Vector2(0.5f, 0.5f);
@@ -81,7 +85,7 @@ namespace Physics.Arrow
             float triangleSize = this.width * TRIANGLE_SIZE_WITH_RESPECT_TO_WIDTH;
 
             this.Triangle = new GameObject("Triangle");
-            this.Triangle.transform.SetParent(this.Canvas, false);
+            this.Triangle.transform.SetParent(arrow.transform, false);
 
             RectTransform triangleTransform = this.Triangle.AddComponent<RectTransform>();
             triangleTransform.anchorMin = new Vector2(0.5f, 0.5f);
