@@ -20,8 +20,7 @@ using Physics.Arrow;
                 {
                     float alpha = Mathematics.InverseCubicAlphaLerp(t);
 
-                    Color color = new Color(1f, (float)index / 100f, (float)index / 100f, Mathematics.Lerp(0f, 1f, alpha));
-                    Debug.Log(color);
+                    Color color = new Color(1f, index / 100f, index / 100f, Mathematics.Lerp(0f, 1f, alpha));
 
                     arrow.SetColor(color);
                     arrow.Object.transform.rotation = Quaternion.Euler(0, 0, Mathematics.Lerp(10f, 0f, alpha));
@@ -43,6 +42,6 @@ using Physics.Arrow;
 
     private Vector2 VectorFieldFunction(Vector2 point)
     {
-        return -point.normalized * 10;
+        return new Vector2(point.normalized.y, -point.normalized.x) * 10;
     }
 }
