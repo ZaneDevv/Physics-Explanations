@@ -12,12 +12,14 @@ namespace Physics.Fields
         // Attributes \\
 
         internal delegate Vector2 FunctionVectorField(Vector2 point);
-        internal delegate void ShowUpAnimation(Arrow2D arrow);
+        internal delegate void ShowUpAnimation(Arrow2D arrow, int index);
         internal delegate void Callback(Arrow2D arrow);
 
         private FunctionVectorField function;
         private ShowUpAnimation? animation;
         private Callback? callback;
+
+        private Vector2 center = Vector2.zero;
 
         private int XIterations = 0;
         private int YIterations = 0;
@@ -28,11 +30,13 @@ namespace Physics.Fields
 
         // Constructors \\
 
-        internal VectorField2D(FunctionVectorField function, int xIterations, int yIterations, float gap, ShowUpAnimation? animation, Callback? callback)
+        internal VectorField2D(FunctionVectorField function, int xIterations, int yIterations, float gap, ShowUpAnimation? animation, Callback? callback, Vector2 center)
         {
             this.function = function;
             this.animation = animation;
             this.callback = callback;
+
+            this.center = center;
 
             this.XIterations = xIterations;
             this.YIterations = yIterations;
@@ -85,6 +89,8 @@ namespace Physics.Fields
             int rows = this.arrowsGrid.GetLength(0);
             int columns = this.arrowsGrid.GetLength(1);
 
+            int currentIndex = 0;
+
             HashSet<(int, int)> visited = new HashSet<(int, int)>();
             List<(int, int)> current = new List<(int, int)> { (1, 1) };
 
@@ -99,12 +105,13 @@ namespace Physics.Fields
                     if (row >= rows || col >= columns || visited.Contains((row, col))) continue;
 
                     visited.Add((row, col));
-                    this.animation(this.arrowsGrid[row, col]);
+                    this.animation(this.arrowsGrid[row, col], currentIndex);
 
                     next.Add((row + 1, col));
                     next.Add((row, col + 1));
                 }
 
+                currentIndex++;
                 current = next;
             }
         }

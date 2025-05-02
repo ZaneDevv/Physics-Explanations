@@ -13,14 +13,17 @@ using Physics.Arrow;
         VectorField2D field = new VectorField2D(
             function: VectorFieldFunction,
             callback: (Arrow2D arrow) => arrow.SetColor(new Color(0, 0, 0, 0)),
-            animation: async (Arrow2D arrow) => {
+            animation: async (Arrow2D arrow, int index) => {
                 arrow.SetColor(new Color(0, 0, 0, 0));
 
                 for (float t = 0; t <= 1; t += 0.033f)
                 {
                     float alpha = Mathematics.InverseCubicAlphaLerp(t);
 
-                    arrow.SetColor(new Color(255, 0, 0, Mathematics.Lerp(0f, 1f, alpha)));
+                    Color color = new Color(1f, (float)index / 100f, (float)index / 100f, Mathematics.Lerp(0f, 1f, alpha));
+                    Debug.Log(color);
+
+                    arrow.SetColor(color);
                     arrow.Object.transform.rotation = Quaternion.Euler(0, 0, Mathematics.Lerp(10f, 0f, alpha));
 
                     await Task.Delay(20);
@@ -28,7 +31,8 @@ using Physics.Arrow;
             },
             xIterations: 20,
             yIterations: 20,
-            gap: 20
+            gap: 20,
+            center: Vector2.zero
         );
     }
 
