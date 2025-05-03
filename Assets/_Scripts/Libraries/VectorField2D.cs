@@ -76,8 +76,12 @@ namespace Physics.Fields
         /// </summary>
         private void ShowUp()
         {
+            int iIndex = 0;
+
             for (int i = -Mathf.FloorToInt(this.XIterations * 0.5f); i < Mathf.FloorToInt(this.XIterations * 0.5f); i++)
             {
+                int jIndex = 0;
+
                 for (int j = -Mathf.FloorToInt(this.YIterations * 0.5f); j < Mathf.FloorToInt(this.YIterations * 0.5f); j++)
                 {
 
@@ -88,12 +92,16 @@ namespace Physics.Fields
                     Arrow2D arrow = new Arrow2D(currentPosition, targetPoint, 2);
                     arrow.Object.transform.SetParent(this.parent.transform, false);
 
-                    this.arrowsGrid[i + this.XIterations / 2, j + this.YIterations / 2] = arrow;
+                    this.arrowsGrid[iIndex, jIndex] = arrow;
 
                     if (this.callback is null) continue;
 
                     this.callback(arrow);
+
+                    jIndex++;
                 }
+
+                iIndex++;
             }
 
             this.ShowUpAnimate();
@@ -113,11 +121,11 @@ namespace Physics.Fields
         /// Changes the function of this vector field
         /// </summary>
         /// <param name="function">Now function that defined the field</param>
-        internal void ChangeField(FunctionVectorField function)
+        internal void ChangeField(FunctionVectorField function, AnimationDirection direction)
         {
             this.function = function;
 
-            this.RunCodeOverVectors(AnimationDirection.Center, true, (Arrow2D arrow, int index) =>
+            this.RunCodeOverVectors(direction, true, (Arrow2D arrow, int index) =>
             {
                 Vector2 position = arrow.OriginPoint;
                 Vector2 newTarget = this.function(position);
@@ -150,45 +158,17 @@ namespace Physics.Fields
             int rows = this.arrowsGrid.GetLength(0);
             int columns = this.arrowsGrid.GetLength(1);
 
-            // Expand from center
+            int startingX = 0;
+            int startingY = 0;
+
             if (direction == AnimationDirection.Center)
             {
-                int centerIndexX = Mathf.FloorToInt(this.XIterations * 0.5f);
-                int centerIndexY = Mathf.FloorToInt(this.XIterations * 0.5f);
-
-                HashSet<(int, int)> alreadyVisited = new HashSet<(int, int)>();
-                List<(int, int)> currentArrows = new List<(int, int)> { (centerIndexX, centerIndexY) };
-
-                while (currentArrows.Count > 0)
-                {
-                    await Task.Delay(delayMiliseconds);
-
-                    List<(int, int)> nextArrows = new List<(int, int)>();
-
-                    foreach (var (row, col) in currentArrows)
-                    {
-                        if (row < 0 || col < 0 || row >= rows || col >= columns || alreadyVisited.Contains((row, col))) continue;
-                        alreadyVisited.Add((row, col));
-
-                        functionToExecute(this.arrowsGrid[row, col], currentIndex);
-
-                        nextArrows.Add((row + 1, col));
-                        nextArrows.Add((row - 1, col));
-                        nextArrows.Add((row, col + 1));
-                        nextArrows.Add((row, col - 1));
-                    }
-
-                    currentIndex++;
-                    currentArrows = nextArrows;
-                }
-
-                return;
+                startingX = Mathf.FloorToInt(this.XIterations * 0.5f);
+                startingY = Mathf.FloorToInt(this.YIterations * 0.5f);
             }
 
-            // Expand diagonally
-
             HashSet<(int, int)> visited = new HashSet<(int, int)>();
-            List<(int, int)> current = new List<(int, int)> { (0, 0) };
+            List<(int, int)> current = new List<(int, int)> { (startingX, startingY) };
 
             while (current.Count > 0)
             {
@@ -198,13 +178,26 @@ namespace Physics.Fields
 
                 foreach (var (row, col) in current)
                 {
-                    if (row >= rows || col >= columns || visited.Contains((row, col))) continue;
+                    if (row < 0 || col < 0 || row >= rows || col >= columns || visited.Contains((row, col))) continue;
                     visited.Add((row, col));
 
-                    functionToExecute(this.arrowsGrid[row, col], currentIndex);
+                    Arrow2D arrow = this.arrowsGrid[row, col];
+                    if (arrow is null) continue;
 
-                    next.Add((row + 1, col));
-                    next.Add((row, col + 1));
+                    functionToExecute(arrow, currentIndex);
+
+                    if (direction == AnimationDirection.Center)
+                    {
+                        next.Add((row + 1, col));
+                        next.Add((row - 1, col));
+                        next.Add((row, col + 1));
+                        next.Add((row, col - 1));
+                    }
+                    else
+                    {
+                        next.Add((row + 1, col));
+                        next.Add((row, col + 1));
+                    }
                 }
 
                 currentIndex++;
@@ -212,5 +205,12 @@ namespace Physics.Fields
             }
         }
 
+
+        // GETTERS & SETTERS \\
+        internal GameObject Parent
+        {
+            get => this.parent;
+            private set => this.parent = value;
+        }
     }
 }

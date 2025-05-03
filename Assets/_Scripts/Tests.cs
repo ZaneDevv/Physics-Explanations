@@ -6,6 +6,9 @@ using Physics.Arrow;
 
 [DisallowMultipleComponent] internal sealed class Tests : MonoBehaviour
 {
+    private GameObject objectField;
+    private bool start = false;
+
     private async void Start()
     {
         await Task.Delay(1000);
@@ -20,7 +23,7 @@ using Physics.Arrow;
                 {
                     float alpha = Mathematics.InverseCubicAlphaLerp(t);
 
-                    arrow.SetColor(new Color(1f, index / 100f, index / 100f, Mathematics.Lerp(0f, 1f, alpha)));
+                    arrow.SetColor(new Color(255, index / 100f, index / 60f, Mathematics.Lerp(0f, 1f, alpha)));
                     arrow.Object.transform.rotation = Quaternion.Euler(0, 0, Mathematics.Lerp(5f, 0f, alpha));
 
                     await Task.Delay(20);
@@ -37,20 +40,27 @@ using Physics.Arrow;
                     await Task.Delay(20);
                 }
             },
-            xIterations: 20,
-            yIterations: 20,
+            xIterations: 30,
+            yIterations: 30,
             gap: 20,
             center: Vector2.zero
         );
+        objectField = field.Parent;
 
         await Task.Delay(3500);
 
-        field.ChangeField(VectorFieldFunction2);
+        field.ChangeField(VectorFieldFunction2, AnimationDirection.Center);
+
+        await Task.Delay(3500);
+
+        start = true;
     }
 
     private void Update()
     {
+        if (start == false) return;
 
+        objectField.transform.rotation *= Quaternion.Euler(0, 0, Time.deltaTime * -10f);
     }
 
     private Vector2 VectorFieldFunction(Vector2 point)
