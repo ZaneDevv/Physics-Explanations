@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Physics.Arrow;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 
 #nullable enable
 
@@ -11,13 +12,16 @@ namespace Physics.Fields
     {
         // Attributes \\
 
+        #region Functions definitions
         internal delegate Vector2 FunctionVectorField(Vector2 point);
-        internal delegate void ShowUpAnimation(Arrow2D arrow, int index);
+        internal delegate void FunctionPerArrow(Arrow2D arrow, int index);
         internal delegate void Callback(Arrow2D arrow);
         internal delegate void AnimationOnFieldChange(Arrow2D arrow, float originAngle, float targetAngle);
+        #endregion
 
+        #region Attributes
         private FunctionVectorField function;
-        private ShowUpAnimation? animation;
+        private FunctionPerArrow? animation;
         private Callback? callback;
         private AnimationOnFieldChange? animationOnChange;
 
@@ -30,11 +34,14 @@ namespace Physics.Fields
         private GameObject parent;
 
         private Arrow2D[,] arrowsGrid;
-
+        #endregion
 
         // Constructors \\
 
-        internal VectorField2D(FunctionVectorField function, int xIterations, int yIterations, float gap, ShowUpAnimation? animation, Callback? callback, Vector2 center, AnimationOnFieldChange? animationOnChange)
+        internal VectorField2D(
+            FunctionVectorField function, FunctionPerArrow? animation, Callback? callback, AnimationOnFieldChange? animationOnChange,
+            int xIterations, int yIterations, float gap, Vector2 center
+        )
         {
             this.parent = new GameObject("Vector field");
             this.parent.transform.SetParent(GameObject.Find("Canvas").transform, false);
@@ -84,52 +91,55 @@ namespace Physics.Fields
                 }
             }
 
-            if (this.animation is null) return;
-
             this.ShowUpAnimate();
         }
 
         /// <summary>
         /// Animates the arrows when they show up from the left-bottom corner to the top-right corner
         /// </summary>
-        private async void ShowUpAnimate()
+        private void ShowUpAnimate()
         {
             if (this.animation is null || this.arrowsGrid == null) return;
 
-            int rows = this.arrowsGrid.GetLength(0);
-            int columns = this.arrowsGrid.GetLength(1);
-
-            int currentIndex = 0;
-
-            HashSet<(int, int)> visited = new HashSet<(int, int)>();
-            List<(int, int)> current = new List<(int, int)> { (1, 1) };
-
-            while (current.Count > 0)
-            {
-                await Task.Delay(60);
-
-                List<(int, int)> next = new List<(int, int)>();
-
-                foreach (var (row, col) in current)
-                {
-                    if (row >= rows || col >= columns || visited.Contains((row, col))) continue;
-
-                    visited.Add((row, col));
-                    this.animation(this.arrowsGrid[row, col], currentIndex);
-
-                    next.Add((row + 1, col));
-                    next.Add((row, col + 1));
-                }
-
-                currentIndex++;
-                current = next;
-            }
+            this.RunCodeOverVectors(true, this.animation);
         }
 
-        internal async void ChangeField(FunctionVectorField function)
+        /// <summary>
+        /// Changes the function of this vector field
+        /// </summary>
+        /// <param name="function">Now function that defined the field</param>
+        internal void ChangeField(FunctionVectorField function)
         {
             this.function = function;
 
+            this.RunCodeOverVectors(true, (Arrow2D arrow, int index) =>
+            {
+                Vector2 position = arrow.OriginPoint;
+                Vector2 newTarget = this.function(position);
+                Vector2 difference = newTarget - position;
+
+                float theta = Mathf.Atan2(difference.y, difference.x);
+
+                if (this.animationOnChange is not null)
+                {
+                    this.animationOnChange(arrow, arrow.Angle, theta);
+                }
+                else
+                {
+                    arrow.Angle = theta;
+                }
+            });
+        }
+    
+        /// <summary>
+        /// Executes a code for each arrow in a specific order
+        /// </summary>
+        /// <param name="animation">Execute an animation in a certain order</param>
+        /// <param name="function">Function to be executed</param>
+        private async void RunCodeOverVectors(bool animation, FunctionPerArrow function)
+        {
+            int delayMiliseconds = animation ? 60 : 0;
+
             int rows = this.arrowsGrid.GetLength(0);
             int columns = this.arrowsGrid.GetLength(1);
 
@@ -140,32 +150,16 @@ namespace Physics.Fields
 
             while (current.Count > 0)
             {
-                await Task.Delay(60);
+                await Task.Delay(delayMiliseconds);
 
                 List<(int, int)> next = new List<(int, int)>();
 
                 foreach (var (row, col) in current)
                 {
                     if (row >= rows || col >= columns || visited.Contains((row, col))) continue;
-
                     visited.Add((row, col));
 
-                    Arrow2D arrow = this.arrowsGrid[row, col];
-
-                    Vector2 position = arrow.OriginPoint;
-                    Vector2 newTarget = this.function(position);
-                    Vector2 difference = newTarget - position;
-
-                    float theta = Mathf.Atan2(difference.y, difference.x);
-
-                    if (this.animationOnChange is not null)
-                    {
-                        this.animationOnChange(arrow, arrow.Angle, theta);
-                    }
-                    else
-                    {
-                        arrow.Angle = theta;
-                    }
+                    function(this.arrowsGrid[row, col], currentIndex);
 
                     next.Add((row + 1, col));
                     next.Add((row, col + 1));
