@@ -29,9 +29,10 @@ using Physics.Arrow;
             animationOnChange: async (Arrow2D arrow, float originAngle, float targetAngle) => {
                 for (float t = 0; t <= 1; t += 0.033f)
                 {
-                    float alpha = Mathematics.InverseCubicAlphaLerp(t);
-
-                    arrow.Angle = Mathematics.Lerp(originAngle, targetAngle, alpha);
+                    arrow.Angle = Mathematics.Lerp(
+                        originAngle, targetAngle,
+                        Mathematics.InverseCubicAlphaLerp(t)
+                    );
 
                     await Task.Delay(20);
                 }

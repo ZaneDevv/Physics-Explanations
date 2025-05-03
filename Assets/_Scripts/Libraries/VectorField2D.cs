@@ -2,12 +2,17 @@
 using System.Threading.Tasks;
 using Physics.Arrow;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 
 #nullable enable
 
 namespace Physics.Fields
 {
+    enum AnimationDirection
+    {
+        BottomLeft_TopRight,
+        Center,
+    }
+
     internal class VectorField2D
     {
         // Attributes \\
@@ -71,9 +76,9 @@ namespace Physics.Fields
         /// </summary>
         private void ShowUp()
         {
-            for (int i = -(int)Mathf.Floor(this.XIterations * 0.5f); i < (int)Mathf.Floor(this.XIterations * 0.5f); i++)
+            for (int i = -Mathf.FloorToInt(this.XIterations * 0.5f); i < Mathf.FloorToInt(this.XIterations * 0.5f); i++)
             {
-                for (int j = -(int)Mathf.Floor(this.YIterations * 0.5f); j < (int)Mathf.Floor(this.YIterations * 0.5f); j++)
+                for (int j = -Mathf.FloorToInt(this.YIterations * 0.5f); j < Mathf.FloorToInt(this.YIterations * 0.5f); j++)
                 {
 
                     Vector2 currentPosition = new Vector2(i, j) * this.gap;
@@ -101,7 +106,7 @@ namespace Physics.Fields
         {
             if (this.animation is null || this.arrowsGrid == null) return;
 
-            this.RunCodeOverVectors(true, this.animation);
+            this.RunCodeOverVectors(AnimationDirection.Center, true, this.animation);
         }
 
         /// <summary>
@@ -112,7 +117,7 @@ namespace Physics.Fields
         {
             this.function = function;
 
-            this.RunCodeOverVectors(true, (Arrow2D arrow, int index) =>
+            this.RunCodeOverVectors(AnimationDirection.Center, true, (Arrow2D arrow, int index) =>
             {
                 Vector2 position = arrow.OriginPoint;
                 Vector2 newTarget = this.function(position);
@@ -130,23 +135,60 @@ namespace Physics.Fields
                 }
             });
         }
-    
+
         /// <summary>
         /// Executes a code for each arrow in a specific order
         /// </summary>
+        /// <param name="direction">Direction of the animation</param>
         /// <param name="animation">Execute an animation in a certain order</param>
-        /// <param name="function">Function to be executed</param>
-        private async void RunCodeOverVectors(bool animation, FunctionPerArrow function)
+        /// <param name="functionToExecute">Function to be executed</param>
+        private async void RunCodeOverVectors(AnimationDirection direction, bool animation, FunctionPerArrow functionToExecute)
         {
             int delayMiliseconds = animation ? 60 : 0;
+            int currentIndex = 0;
 
             int rows = this.arrowsGrid.GetLength(0);
             int columns = this.arrowsGrid.GetLength(1);
 
-            int currentIndex = 0;
+            // Expand from center
+            if (direction == AnimationDirection.Center)
+            {
+                int centerIndexX = Mathf.FloorToInt(this.XIterations * 0.5f);
+                int centerIndexY = Mathf.FloorToInt(this.XIterations * 0.5f);
+
+                HashSet<(int, int)> alreadyVisited = new HashSet<(int, int)>();
+                List<(int, int)> currentArrows = new List<(int, int)> { (centerIndexX, centerIndexY) };
+
+                while (currentArrows.Count > 0)
+                {
+                    await Task.Delay(delayMiliseconds);
+
+                    List<(int, int)> nextArrows = new List<(int, int)>();
+
+                    foreach (var (row, col) in currentArrows)
+                    {
+                        if (row < 0 || col < 0 || row >= rows || col >= columns || alreadyVisited.Contains((row, col))) continue;
+                        alreadyVisited.Add((row, col));
+
+                        functionToExecute(this.arrowsGrid[row, col], currentIndex);
+
+                        nextArrows.Add((row + 1, col));
+                        nextArrows.Add((row - 1, col));
+                        nextArrows.Add((row, col + 1));
+                        nextArrows.Add((row, col - 1));
+                    }
+
+                    currentIndex++;
+                    currentArrows = nextArrows;
+                }
+
+                return;
+            }
+
+            // Expand diagonally
 
             HashSet<(int, int)> visited = new HashSet<(int, int)>();
-            List<(int, int)> current = new List<(int, int)> { (1, 1) };
+            List<(int, int)> current = new List<(int, int)> { (0, 0) };
 
             while (current.Count > 0)
             {
@@ -159,7 +201,7 @@ namespace Physics.Fields
                     if (row >= rows || col >= columns || visited.Contains((row, col))) continue;
                     visited.Add((row, col));
 
-                    function(this.arrowsGrid[row, col], currentIndex);
+                    functionToExecute(this.arrowsGrid[row, col], currentIndex);
 
                     next.Add((row + 1, col));
                     next.Add((row, col + 1));
@@ -169,5 +211,6 @@ namespace Physics.Fields
                 current = next;
             }
         }
+
     }
 }
