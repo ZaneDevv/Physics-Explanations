@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Physics.Arrow;
 using System.Collections.Generic;
+using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
 #nullable enable
 
@@ -9,8 +10,10 @@ namespace Physics.Fields
 {
     enum AnimationDirection
     {
+        None,
         BottomLeft_TopRight,
         Center,
+        AllAtOnce
     }
 
     internal class VectorField2D
@@ -21,7 +24,7 @@ namespace Physics.Fields
         internal delegate Vector2 FunctionVectorField(Vector2 point);
         internal delegate void FunctionPerArrow(Arrow2D arrow, int index);
         internal delegate void Callback(Arrow2D arrow);
-        internal delegate void AnimationOnFieldChange(Arrow2D arrow, float originAngle, float targetAngle);
+        internal delegate void AnimationOnFieldChange(Arrow2D arrow, float originAngle, float targetAngle, float originMagnitude, float targetMagnitude);
         #endregion
 
         #region Attributes
@@ -129,17 +132,20 @@ namespace Physics.Fields
             {
                 Vector2 position = arrow.OriginPoint;
                 Vector2 newTarget = this.function(position);
-                Vector2 difference = newTarget - position;
 
-                float theta = Mathf.Atan2(difference.y, difference.x);
+                float currentMagnitude = arrow.Magnitude;
+                float newMagnitude = Vector2.Distance(position, position + newTarget);
+
+                float theta = Mathf.Atan2(newTarget.x, -newTarget.y);
 
                 if (this.animationOnChange is not null)
                 {
-                    this.animationOnChange(arrow, arrow.Angle, theta);
+                    this.animationOnChange(arrow, arrow.Angle, theta, currentMagnitude, newMagnitude);
                 }
                 else
                 {
                     arrow.Angle = theta;
+                    arrow.Magnitude = newMagnitude;
                 }
             });
         }
@@ -154,6 +160,15 @@ namespace Physics.Fields
         {
             int delayMiliseconds = animation ? 60 : 0;
             int currentIndex = 0;
+
+            if (direction == AnimationDirection.AllAtOnce)
+            {
+                foreach (Arrow2D arrow in this.arrowsGrid)
+                {
+                    functionToExecute(arrow, currentIndex);
+                    currentIndex++;
+                }
+            }
 
             int rows = this.arrowsGrid.GetLength(0);
             int columns = this.arrowsGrid.GetLength(1);

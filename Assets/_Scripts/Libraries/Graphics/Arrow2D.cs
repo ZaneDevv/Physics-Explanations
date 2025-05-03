@@ -143,6 +143,17 @@ namespace Physics.Arrow
             }
         }
 
+        internal float Magnitude
+        {
+            get => this.magnitude;
+            set
+            {
+                this.magnitude = value;
+                this.lineTransform.sizeDelta = new Vector2(this.width, this.magnitude);
+                this.triangleTransform.anchoredPosition = this.originPoint + this.magnitude * new Vector2(-Mathf.Sin(this.theta), Mathf.Cos(this.theta));
+            }
+        }
+
         internal GameObject Object { get => this.arrow; private set => this.arrow = value; }
     }
 }

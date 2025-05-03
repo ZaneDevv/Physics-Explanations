@@ -6,14 +6,16 @@ using Physics.Arrow;
 
 [DisallowMultipleComponent] internal sealed class Tests : MonoBehaviour
 {
-    private GameObject objectField;
     private bool start = false;
+
+    [SerializeField] private RectTransform electron;
+    private VectorField2D field;
 
     private async void Start()
     {
         await Task.Delay(1000);
 
-        VectorField2D field = new VectorField2D(
+        field = new VectorField2D(
             function: VectorFieldFunction,
             callback: (Arrow2D arrow) => arrow.SetColor(new Color(0, 0, 0, 0)),
             animation: async (Arrow2D arrow, int index) => {
@@ -29,47 +31,26 @@ using Physics.Arrow;
                     await Task.Delay(20);
                 }
             },
-            animationOnChange: async (Arrow2D arrow, float originAngle, float targetAngle) => {
-                for (float t = 0; t <= 1; t += 0.033f)
-                {
-                    arrow.Angle = Mathematics.Lerp(
-                        originAngle, targetAngle,
-                        Mathematics.InverseCubicAlphaLerp(t)
-                    );
-
-                    await Task.Delay(20);
-                }
-            },
+            animationOnChange: null,
             xIterations: 30,
             yIterations: 30,
             gap: 20,
             center: Vector2.zero
         );
-        objectField = field.Parent;
 
-        await Task.Delay(3500);
-
-        field.ChangeField(VectorFieldFunction2, AnimationDirection.Center);
-
-        await Task.Delay(3500);
+        await Task.Delay(3000);
 
         start = true;
     }
 
     private void Update()
     {
-        if (start == false) return;
-
-        objectField.transform.rotation *= Quaternion.Euler(0, 0, Time.deltaTime * -10f);
+        if (!start) return;
+        field.ChangeField(VectorFieldFunction, AnimationDirection.AllAtOnce); 
     }
 
     private Vector2 VectorFieldFunction(Vector2 point)
     {
-        return -point.normalized * 10;
-    }
-
-    private Vector2 VectorFieldFunction2(Vector2 point)
-    {
-        return new Vector2(point.normalized.y, -point.normalized.x);
+        return (electron.anchoredPosition - point).normalized * 10;
     }
 }
