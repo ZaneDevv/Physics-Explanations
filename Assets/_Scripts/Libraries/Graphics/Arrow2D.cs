@@ -20,6 +20,9 @@ namespace Physics.Arrow
         private GameObject Line;
         private GameObject Triangle;
 
+        private RectTransform lineTransform;
+        private RectTransform triangleTransform;
+
         private Transform Canvas;
 
 
@@ -70,13 +73,13 @@ namespace Physics.Arrow
             this.Line = new GameObject("Line");
             this.Line.transform.SetParent(this.arrow.transform, false);
 
-            RectTransform lineTransform = this.Line.AddComponent<RectTransform>();
-            lineTransform.anchorMin = new Vector2(0.5f, 0.5f);
-            lineTransform.anchorMax = new Vector2(0.5f, 0.5f);
-            lineTransform.pivot = new Vector2(0.5f, 0f);
-            lineTransform.sizeDelta = new Vector2(this.width, this.magnitude);
-            lineTransform.anchoredPosition = this.originPoint;
-            lineTransform.localRotation = this.quaternion;
+            this.lineTransform = this.Line.AddComponent<RectTransform>();
+            this.lineTransform.anchorMin = new Vector2(0.5f, 0.5f);
+            this.lineTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            this.lineTransform.pivot = new Vector2(0.5f, 0f);
+            this.lineTransform.sizeDelta = new Vector2(this.width, this.magnitude);
+            this.lineTransform.anchoredPosition = this.originPoint;
+            this.lineTransform.localRotation = this.quaternion;
 
             Image image = this.Line.AddComponent<Image>();
             image.color = Color.red;
@@ -87,13 +90,13 @@ namespace Physics.Arrow
             this.Triangle = new GameObject("Triangle");
             this.Triangle.transform.SetParent(this.arrow.transform, false);
 
-            RectTransform triangleTransform = this.Triangle.AddComponent<RectTransform>();
-            triangleTransform.anchorMin = new Vector2(0.5f, 0.5f);
-            triangleTransform.anchorMax = new Vector2(0.5f, 0.5f);
-            triangleTransform.pivot = new Vector2(0.5f, 0f);
-            triangleTransform.localRotation = this.quaternion;
-            triangleTransform.sizeDelta = new Vector2(triangleSize, triangleSize);
-            triangleTransform.anchoredPosition = this.originPoint + this.magnitude * new Vector2(-Mathf.Sin(this.theta), Mathf.Cos(this.theta));
+            this.triangleTransform = this.Triangle.AddComponent<RectTransform>();
+            this.triangleTransform.anchorMin = new Vector2(0.5f, 0.5f);
+            this.triangleTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            this.triangleTransform.pivot = new Vector2(0.5f, 0f);
+            this.triangleTransform.localRotation = this.quaternion;
+            this.triangleTransform.sizeDelta = new Vector2(triangleSize, triangleSize);
+            this.triangleTransform.anchoredPosition = this.originPoint + this.magnitude * new Vector2(-Mathf.Sin(this.theta), Mathf.Cos(this.theta));
 
             UITriangle triangleGraphics = this.Triangle.AddComponent<UITriangle>();
             triangleGraphics.color = Color.red;
@@ -113,6 +116,7 @@ namespace Physics.Arrow
             this.Triangle.GetComponent<UITriangle>().color = color;
         }
 
+        
 
         // Setters & getters \\
         internal Vector2 OriginPoint
@@ -120,10 +124,23 @@ namespace Physics.Arrow
             get => this.originPoint;
             private set => this.originPoint = value;
         }
-        internal Quaternion Quaternion
+        internal Quaternion Rotation
         {
             get => this.quaternion;
             private set => this.quaternion = value;
+        }
+
+        internal float Angle
+        {
+            get => this.theta;
+            set
+            {
+                this.theta = value;
+                this.quaternion = this.quaternion = new Quaternion(0, 0, Mathf.Sin(theta * 0.5f), Mathf.Cos(theta * 0.5f));
+                this.lineTransform.localRotation = this.quaternion;
+                this.triangleTransform.localRotation = this.quaternion;
+                this.triangleTransform.anchoredPosition = this.originPoint + this.magnitude * new Vector2(-Mathf.Sin(this.theta), Mathf.Cos(this.theta));
+            }
         }
 
         internal GameObject Object { get => this.arrow; private set => this.arrow = value; }

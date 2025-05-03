@@ -20,10 +20,18 @@ using Physics.Arrow;
                 {
                     float alpha = Mathematics.InverseCubicAlphaLerp(t);
 
-                    Color color = new Color(1f, index / 100f, index / 100f, Mathematics.Lerp(0f, 1f, alpha));
+                    arrow.SetColor(new Color(1f, index / 100f, index / 100f, Mathematics.Lerp(0f, 1f, alpha)));
+                    arrow.Object.transform.rotation = Quaternion.Euler(0, 0, Mathematics.Lerp(5f, 0f, alpha));
 
-                    arrow.SetColor(color);
-                    arrow.Object.transform.rotation = Quaternion.Euler(0, 0, Mathematics.Lerp(10f, 0f, alpha));
+                    await Task.Delay(20);
+                }
+            },
+            animationOnChange: async (Arrow2D arrow, float originAngle, float targetAngle) => {
+                for (float t = 0; t <= 1; t += 0.033f)
+                {
+                    float alpha = Mathematics.InverseCubicAlphaLerp(t);
+
+                    arrow.Angle = Mathematics.Lerp(originAngle, targetAngle, alpha);
 
                     await Task.Delay(20);
                 }
@@ -33,6 +41,10 @@ using Physics.Arrow;
             gap: 20,
             center: Vector2.zero
         );
+
+        await Task.Delay(3500);
+
+        field.ChangeField(VectorFieldFunction2);
     }
 
     private void Update()
@@ -42,6 +54,11 @@ using Physics.Arrow;
 
     private Vector2 VectorFieldFunction(Vector2 point)
     {
-        return new Vector2(point.normalized.y, -point.normalized.x) * 10;
+        return -point.normalized * 10;
+    }
+
+    private Vector2 VectorFieldFunction2(Vector2 point)
+    {
+        return new Vector2(point.normalized.y, -point.normalized.x);
     }
 }
