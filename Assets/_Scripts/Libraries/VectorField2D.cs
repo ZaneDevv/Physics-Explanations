@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Physics.Arrow;
 using System.Collections.Generic;
-using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
 #nullable enable
 

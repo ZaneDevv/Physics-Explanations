@@ -1,4 +1,6 @@
-# Physics explanations [not done yet]
+# Physics explanations [Currenctly in process]
+
+When I decided to make a YouTube channel to explain in a not rigurous way at all some maths and physics stuff, like most of the people, my first thought to make the animations was [`Manim`](https://github.com/3b1b/manim). Nevertheless, everybody uses it.
 
 # Vector fields
 

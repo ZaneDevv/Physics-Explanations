@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-namespace Physics.Arrow.Graphics
+namespace Physics.Graphics
 {
     [RequireComponent(typeof(CanvasRenderer))]
     internal class UITriangle : Graphic

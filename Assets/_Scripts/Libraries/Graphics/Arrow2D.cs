@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
-using Physics.Arrow.Graphics;
+using Physics.Graphics;
 
 namespace Physics.Arrow
 {
