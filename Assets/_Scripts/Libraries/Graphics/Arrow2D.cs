@@ -154,5 +154,17 @@ namespace Physics.Arrow
         }
 
         internal GameObject Object { get => this.arrow; private set => this.arrow = value; }
+
+        internal Transform Parent
+        {
+            get => this.Canvas;
+            set
+            {
+                this.Canvas = value;
+
+                this.lineTransform.SetParent(value, false);
+                this.triangleTransform.SetParent(value, false);
+            }
+        }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
 using Physics.Graphics;
 
 namespace Physics.Planes
@@ -54,6 +53,7 @@ namespace Physics.Planes
                         pivot: Vector2.one * 0.5f,
                         angle: Mathf.PI * 0.5f
                     );
+                    integerInAxis.Name = $"{integer}";
                 }
             }
 
@@ -86,7 +86,8 @@ namespace Physics.Planes
                        position: new Vector2(integer * this.distanceUnitsY, 0),
                        pivot: Vector2.one * 0.5f,
                        angle: 0
-                   );
+                    );
+                    integerInAxis.Name = $"{integer}";
                 }
             }
         }
@@ -96,8 +97,8 @@ namespace Physics.Planes
         /// <summary>
         /// Calculates the given position in the plan but in the UI coordinates
         /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
+        /// <param name="x">X coordinate</param>
+        /// <param name="y">Y coordinate</param>
         /// <returns></returns>
         internal Vector2 GetPositionInPlane(float x, float y) => new Vector2(this.distanceUnitsX * y, this.distanceUnitsY * -x);
 

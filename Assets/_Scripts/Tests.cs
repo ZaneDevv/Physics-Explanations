@@ -19,5 +19,6 @@ using Physics.Arrow;
             plane.GetPositionInPlane(3, -2),
             5
         );
+        arrow.Parent = plane.Plane.transform;
     }
 }
