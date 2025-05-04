@@ -1,5 +1,6 @@
 using UnityEngine;
 using Physics.Planes;
+using Physics.Arrow;
 
 [DisallowMultipleComponent] internal sealed class Tests : MonoBehaviour
 {
@@ -11,6 +12,12 @@ using Physics.Planes;
             magnitudeY: 400,
             distanceX: 30,
             distanceY: 30
+        );
+
+        Arrow2D arrow = new Arrow2D(
+            plane.GetPositionInPlane(0, 0),
+            plane.GetPositionInPlane(3, -2),
+            5
         );
     }
 }

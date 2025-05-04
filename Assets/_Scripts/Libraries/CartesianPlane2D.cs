@@ -12,11 +12,18 @@ namespace Physics.Planes
         private Line xAxis;
         private Line yAxis;
 
+        private float distanceUnitsX = 0;
+        private float distanceUnitsY = 0;
+
+
         // CONSTRUCTOR \\
         internal CartesianPlane2D(float depth, float magnitudeX, float magnitudeY, float distanceX, float distanceY)
         {
             this.parent = new GameObject("Cartesian plane");
             this.parent.transform.SetParent(GameObject.Find("Canvas").transform, false);
+
+            this.distanceUnitsX = distanceX;
+            this.distanceUnitsY = distanceY;
 
             // Creating x axis
             this.xAxis = new Line(
@@ -37,13 +44,13 @@ namespace Physics.Planes
                 while (i < 0 ? -currentX < magnitudeX * 0.5f : currentX < magnitudeX * 0.5f)
                 {
                     integer += i;
-                    currentX += distanceX * i;
+                    currentX += this.distanceUnitsX * i;
 
                      Line integerInAxis = new Line(
                         parent: this.xAxis.Object,
                         width: depth,
                         magnitude: depth * 5,
-                        position: new Vector2(integer * distanceX, 0),
+                        position: new Vector2(integer * this.distanceUnitsX, 0),
                         pivot: Vector2.one * 0.5f,
                         angle: Mathf.PI * 0.5f
                     );
@@ -70,13 +77,13 @@ namespace Physics.Planes
                 while (i < 0 ? -currentY < magnitudeY * 0.5f : currentY < magnitudeY * 0.5f)
                 {
                     integer += i;
-                    currentY += distanceY * i;
+                    currentY += this.distanceUnitsY * i;
 
                     Line integerInAxis = new Line(
                        parent: this.yAxis.Object,
                        width: depth,
                        magnitude: depth * 5,
-                       position: new Vector2(integer * distanceY, 0),
+                       position: new Vector2(integer * this.distanceUnitsY, 0),
                        pivot: Vector2.one * 0.5f,
                        angle: 0
                    );
@@ -85,8 +92,20 @@ namespace Physics.Planes
         }
 
 
+        // METHODS \\
+        /// <summary>
+        /// Calculates the given position in the plan but in the UI coordinates
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        internal Vector2 GetPositionInPlane(float x, float y) => new Vector2(this.distanceUnitsX * y, this.distanceUnitsY * -x);
+
+
         // SETTERS & GETTERS \\
         internal Line XAxis { get => this.xAxis; private set => this.xAxis = value; }
         internal Line YAxis { get => this.yAxis; private set => this.yAxis = value; }
+        
+        internal GameObject Plane { get => this.parent; private set => this.parent = value; }
     }
 }

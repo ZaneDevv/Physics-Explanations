@@ -66,6 +66,8 @@ namespace Physics.Arrow
         /// </summary>
         private void SetGraphics()
         {
+            float triangleSize = this.width * TRIANGLE_SIZE_WITH_RESPECT_TO_WIDTH;
+
             // Create the line
             this.arrow = new GameObject("Arrow");
             this.arrow.transform.SetParent(this.Canvas, false);
@@ -77,7 +79,7 @@ namespace Physics.Arrow
             this.lineTransform.anchorMin = new Vector2(0.5f, 0.5f);
             this.lineTransform.anchorMax = new Vector2(0.5f, 0.5f);
             this.lineTransform.pivot = new Vector2(0.5f, 0f);
-            this.lineTransform.sizeDelta = new Vector2(this.width, this.magnitude);
+            this.lineTransform.sizeDelta = new Vector2(this.width, this.magnitude - triangleSize);
             this.lineTransform.anchoredPosition = this.originPoint;
             this.lineTransform.localRotation = this.quaternion;
 
@@ -85,8 +87,6 @@ namespace Physics.Arrow
             image.color = Color.red;
 
             // Create the triangle
-            float triangleSize = this.width * TRIANGLE_SIZE_WITH_RESPECT_TO_WIDTH;
-
             this.Triangle = new GameObject("Triangle");
             this.Triangle.transform.SetParent(this.arrow.transform, false);
 
@@ -96,7 +96,7 @@ namespace Physics.Arrow
             this.triangleTransform.pivot = new Vector2(0.5f, 0f);
             this.triangleTransform.localRotation = this.quaternion;
             this.triangleTransform.sizeDelta = new Vector2(triangleSize, triangleSize);
-            this.triangleTransform.anchoredPosition = this.originPoint + this.magnitude * new Vector2(-Mathf.Sin(this.theta), Mathf.Cos(this.theta));
+            this.triangleTransform.anchoredPosition = this.originPoint + (this.magnitude - triangleSize) * new Vector2(-Mathf.Sin(this.theta), Mathf.Cos(this.theta));
 
             UITriangle triangleGraphics = this.Triangle.AddComponent<UITriangle>();
             triangleGraphics.color = Color.red;
@@ -139,18 +139,17 @@ namespace Physics.Arrow
                 this.quaternion = this.quaternion = new Quaternion(0, 0, Mathf.Sin(theta * 0.5f), Mathf.Cos(theta * 0.5f));
                 this.lineTransform.localRotation = this.quaternion;
                 this.triangleTransform.localRotation = this.quaternion;
-                this.triangleTransform.anchoredPosition = this.originPoint + this.magnitude * new Vector2(-Mathf.Sin(this.theta), Mathf.Cos(this.theta));
+                this.triangleTransform.anchoredPosition = this.originPoint + (this.magnitude - this.width * TRIANGLE_SIZE_WITH_RESPECT_TO_WIDTH) * new Vector2(-Mathf.Sin(this.theta), Mathf.Cos(this.theta));
             }
         }
-
         internal float Magnitude
         {
             get => this.magnitude;
             set
             {
                 this.magnitude = value;
-                this.lineTransform.sizeDelta = new Vector2(this.width, this.magnitude);
-                this.triangleTransform.anchoredPosition = this.originPoint + this.magnitude * new Vector2(-Mathf.Sin(this.theta), Mathf.Cos(this.theta));
+                this.lineTransform.sizeDelta = new Vector2(this.width, this.magnitude - this.width * TRIANGLE_SIZE_WITH_RESPECT_TO_WIDTH);
+                this.triangleTransform.anchoredPosition = this.originPoint + (this.magnitude - this.width * TRIANGLE_SIZE_WITH_RESPECT_TO_WIDTH) * new Vector2(-Mathf.Sin(this.theta), Mathf.Cos(this.theta));
             }
         }
 
