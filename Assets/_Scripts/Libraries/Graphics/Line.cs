@@ -40,7 +40,7 @@ namespace Physics.Graphics
 
 
         // METHODS \\
-        private void SetColor(Color color)
+        internal void SetColor(Color color)
         {
             image.color = color;
         }
