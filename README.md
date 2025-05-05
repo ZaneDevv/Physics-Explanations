@@ -20,7 +20,9 @@ Vector fields are quite a useful in maths and physics, so it is essential to imp
 
 Cartesian planes are super important in all possible fields of mathematics, so it was important to make it as easy and customizable as possible.
 
-<img src="https://github.com/user-attachments/assets/e9c5bffc-89b9-48d3-9ace-080fe8168cac" width="70%" />
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/e9c5bffc-89b9-48d3-9ace-080fe8168cac" width="70%" />
+</div>
 
 The constructor counts with several parameters to customize the plane such as:
 
