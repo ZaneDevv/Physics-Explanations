@@ -22,13 +22,13 @@ Cartesian planes are super important in all possible fields of mathematics, so i
 The constructor counts with several parameters to customize the plane such as:
 
 <ul>
-  <li>`Depth`: Thickness of the axes.</li>
-  <li>`Magnitude X`: How long you want the X axis to be.</li>
-  <li>`Magnitude Y`: How long you want the Y axis to be.</li>
-  <li>`Distance X`: How long is a unit in the X axis.</li>
-  <li>`Distance Y`: How long is a unit in the y axis.</li>
-  <li>`Color`: Color you want to use for the axes.</li>
-  <li>`Callback`: Optional function that will be automatically executed when the plane is done.</li>
+  <li>Depth: Thickness of the axes.</li>
+  <li>Magnitude X: How long you want the X axis to be.</li>
+  <li>Magnitude Y: How long you want the Y axis to be.</li>
+  <li>Distance X: How long is a unit in the X axis.</li>
+  <li>Distance Y: How long is a unit in the y axis.</li>
+  <li>Color: Color you want to use for the axes.</li>
+  <li>Callback: Optional function that will be automatically executed when the plane is done.</li>
 </ul>
 
 Example of code:
