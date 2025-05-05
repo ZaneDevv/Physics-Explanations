@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using Physics.Graphics;
 using System.Collections.Generic;
+using System.Linq;
 
 #nullable enable
 
@@ -109,6 +110,9 @@ namespace Physics.Planes
                     integersInYAxis.Add(integerInAxis);
                 }
             }
+
+            integersInXAxis = integersInXAxis.OrderBy(item => int.Parse(item.Name)).ToList();
+            integersInYAxis = integersInYAxis.OrderBy(item => int.Parse(item.Name)).ToList();
 
             if (callback is not null)
             {

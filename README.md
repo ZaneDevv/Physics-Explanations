@@ -19,6 +19,9 @@ Vector fields are quite a useful in maths and physics, so it is essential to imp
 # Cartesian plane
 
 Cartesian planes are super important in all possible fields of mathematics, so it was important to make it as easy and customizable as possible.
+
+<img src="https://github.com/user-attachments/assets/e9c5bffc-89b9-48d3-9ace-080fe8168cac" width="70%" />
+
 The constructor counts with several parameters to customize the plane such as:
 
 <ul>
@@ -26,7 +29,7 @@ The constructor counts with several parameters to customize the plane such as:
   <li>Magnitude X: How long you want the X axis to be.</li>
   <li>Magnitude Y: How long you want the Y axis to be.</li>
   <li>Distance X: How long is a unit in the X axis.</li>
-  <li>Distance Y: How long is a unit in the y axis.</li>
+  <li>Distance Y: How long is a unit in the Y axis.</li>
   <li>Color: Color you want to use for the axes.</li>
   <li>Callback: Optional function that will be automatically executed when the plane is done.</li>
 </ul>

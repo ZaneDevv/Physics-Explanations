@@ -8,6 +8,7 @@ namespace Physics.Graphics
         // ATTRIBUTES \\
         private GameObject parent;
         private GameObject line;
+        private Vector2 position;
 
         private RectTransform rectTransform;
         private Image image;
@@ -22,6 +23,7 @@ namespace Physics.Graphics
         {
             this.parent = parent;
             this.theta = angle;
+            this.position = position;
 
             this.line = new GameObject(this.name);
             this.line.transform.SetParent(this.parent.transform, false);
@@ -63,6 +65,16 @@ namespace Physics.Graphics
             {
                 this.theta = value;
                 this.rectTransform.rotation = new Quaternion(0, 0, Mathf.Sin(value * 0.5f), Mathf.Cos(value * 0.5f));
+            }
+        }
+
+        internal Vector2 Position
+        {
+            get => this.position;
+            set
+            {
+                this.position = value;
+                this.rectTransform.anchoredPosition = value;
             }
         }
 
