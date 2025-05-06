@@ -2,6 +2,8 @@
 using Physics.Graphics;
 using System.Collections.Generic;
 using System.Linq;
+using Physics.Math;
+using System.Threading.Tasks;
 
 #nullable enable
 
@@ -26,6 +28,8 @@ namespace Physics.Planes
 
         private List<Line> integersInXAxis = new List<Line>();
         private List<Line> integersInYAxis = new List<Line>();
+
+        private Color color;
         #endregion
 
 
@@ -37,6 +41,8 @@ namespace Physics.Planes
 
             this.distanceUnitsX = distanceX;
             this.distanceUnitsY = distanceY;
+
+            this.color = color;
 
             // Creating x axis
             this.xAxis = new Line(
@@ -148,7 +154,15 @@ namespace Physics.Planes
             {
                 line.SetColor(color);
             }
+
+            this.color = color;
         }
+
+        /// <summary>
+        /// Gets the color of the plane
+        /// </summary>
+        /// <returns>Color of the plane</returns>
+        internal Color GetColor() => this.color;
 
         // SETTERS & GETTERS \\
         internal Line XAxis { get => this.xAxis; private set => this.xAxis = value; }
@@ -158,5 +172,94 @@ namespace Physics.Planes
         internal List<Line> IntegersInYAxisLines { get => this.integersInYAxis; private set => this.integersInYAxis = value; }
 
         internal GameObject Plane { get => this.parent; private set => this.parent = value; }
+
+
+        // STATIC METHODS
+
+        internal static void ShowUpAnimated(CartesianPlane2D plane)
+        {
+            Color planeColor = plane.GetColor();
+
+            async void Axes()
+            {
+                for (float t = 0; t <= 1; t += 0.006f)
+                {
+                    float alpha = Mathematics.InverseCubicAlphaLerp(t);
+
+                    plane.XAxis.SetColor(new Color(planeColor.r, planeColor.g, planeColor.b, alpha));
+                    plane.YAxis.SetColor(new Color(planeColor.r, planeColor.g, planeColor.b, alpha));
+
+                    await Task.Delay(30);
+                }
+            }
+
+            async void xAxisLines()
+            {
+                foreach (Line line in plane.IntegersInXAxisLines)
+                {
+                    await Task.Delay(60);
+                    xAxisLine(line);
+                }
+            }
+            async void xAxisLine(Line line)
+            {
+                float origin = line.Position.y;
+                float target = origin + 20;
+
+                for (float t = 0; t <= 1; t += 0.0333f)
+                {
+                    float alpha = Mathematics.InverseCubicAlphaLerp(t);
+
+                    line.SetColor(new Color(planeColor.r, planeColor.g, planeColor.b, alpha));
+                    line.Position = new Vector2(line.Position.x, Mathematics.Lerp(origin, target, alpha));
+
+                    await Task.Delay(16);
+                }
+            }
+
+            async void yAxisLines()
+            {
+                foreach (Line line in plane.IntegersInYAxisLines)
+                {
+                    await Task.Delay(60);
+                    yAxisLine(line);
+                }
+            }
+            async void yAxisLine(Line line)
+            {
+                float origin = line.Position.y;
+                float target = origin - 20;
+
+                for (float t = 0; t <= 1; t += 0.0333f)
+                {
+                    float alpha = Mathematics.InverseCubicAlphaLerp(t);
+
+                    line.SetColor(new Color(planeColor.r, planeColor.g, planeColor.b, alpha));
+                    line.Position = new Vector2(line.Position.x, Mathematics.Lerp(origin, target, alpha));
+
+                    await Task.Delay(16);
+                }
+            }
+
+            foreach (Line line in plane.IntegersInXAxisLines)
+            {
+                line.SetColor(new Color(1, 1, 1, 0));
+                line.Position = new Vector2(line.Position.x, line.Position.y - 20);
+            }
+
+            foreach (Line line in plane.IntegersInYAxisLines)
+            {
+                line.SetColor(new Color(1, 1, 1, 0));
+                line.Position = new Vector2(line.Position.x, line.Position.y + 20);
+            }
+
+            plane.XAxis.SetColor(new Color(0, 0, 0, 0));
+            plane.YAxis.SetColor(new Color(0, 0, 0, 0));
+
+            xAxisLines();
+            yAxisLines();
+
+            Axes();
+        }
     }
 }
