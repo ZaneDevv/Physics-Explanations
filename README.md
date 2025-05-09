@@ -47,7 +47,7 @@ using Physics.Planes;
     private void Start()
     {
         CartesianPlane2D plane = new CartesianPlane2D(
-            depth: 3,
+            thickness: 3,
             magnitudeX: 600,
             magnitudeY: 400,
             distanceX: 30,

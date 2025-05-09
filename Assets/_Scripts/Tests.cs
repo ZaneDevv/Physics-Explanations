@@ -11,7 +11,7 @@ using Physics.Math;
         await Task.Delay(1000);
 
         CartesianPlane2D plane = new CartesianPlane2D(
-            depth: 3,
+            thickness: 3,
             magnitudeX: 600,
             magnitudeY: 600,
             distanceX: 30,

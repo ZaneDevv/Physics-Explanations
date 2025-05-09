@@ -34,7 +34,7 @@ namespace Physics.Planes
 
 
         // CONSTRUCTOR \\
-        internal CartesianPlane2D(float depth, float magnitudeX, float magnitudeY, float distanceX, float distanceY, Color color, Callback? callback)
+        internal CartesianPlane2D(float thickness, float magnitudeX, float magnitudeY, float distanceX, float distanceY, Color color, Callback? callback)
         {
             this.parent = new GameObject("Cartesian plane");
             this.parent.transform.SetParent(GameObject.Find("Canvas").transform, false);
@@ -47,7 +47,7 @@ namespace Physics.Planes
             // Creating x axis
             this.xAxis = new Line(
                 parent: this.parent,
-                width: depth,
+                width: thickness,
                 magnitude: magnitudeX,
                 position: Vector2.zero,
                 pivot: Vector2.one * 0.5f,
@@ -68,8 +68,8 @@ namespace Physics.Planes
 
                      Line integerInAxis = new Line(
                         parent: this.xAxis.Object,
-                        width: depth,
-                        magnitude: depth * 5,
+                        width: thickness,
+                        magnitude: thickness * 5,
                         position: new Vector2(integer * this.distanceUnitsX, 0),
                         pivot: Vector2.one * 0.5f,
                         angle: Mathf.PI * 0.5f
@@ -84,7 +84,7 @@ namespace Physics.Planes
             // Creating y axis
             this.yAxis = new Line(
                 parent: this.parent,
-                width: depth,
+                width: thickness,
                 magnitude: magnitudeY,
                 position: Vector2.zero,
                 pivot: Vector2.one * 0.5f,
@@ -105,8 +105,8 @@ namespace Physics.Planes
 
                     Line integerInAxis = new Line(
                        parent: this.yAxis.Object,
-                       width: depth,
-                       magnitude: depth * 5,
+                       width: thickness,
+                       magnitude: thickness * 5,
                        position: new Vector2(integer * this.distanceUnitsY, 0),
                        pivot: Vector2.one * 0.5f,
                        angle: 0
@@ -175,7 +175,6 @@ namespace Physics.Planes
 
 
         // STATIC METHODS
-
         internal static void ShowUpAnimated(CartesianPlane2D plane)
         {
             Color planeColor = plane.GetColor();
