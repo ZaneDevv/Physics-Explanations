@@ -26,8 +26,8 @@ namespace Physics.Planes
         private float distanceUnitsX = 0;
         private float distanceUnitsY = 0;
 
-        private List<Line> integersInXAxis = new List<Line>();
-        private List<Line> integersInYAxis = new List<Line>();
+        private List<(Line, Line)> integersInXAxis = new List<(Line, Line)>();
+        private List<(Line, Line)> integersInYAxis = new List<(Line, Line)>();
 
         private Color color;
         #endregion
@@ -76,7 +76,18 @@ namespace Physics.Planes
                     );
                     integerInAxis.SetColor(color);
                     integerInAxis.Name = $"{integer}";
-                    integersInXAxis.Add(integerInAxis);
+
+                    Line integerFullLine = new Line(
+                        parent: integerInAxis.Object,
+                        width: thickness * 0.5f,
+                        magnitude: magnitudeX,
+                        position: Vector2.zero,
+                        pivot: Vector2.one * 0.5f,
+                        angle: Mathf.PI * 0.5f
+                    );
+                    integerFullLine.SetColor(new Color(color.r, color.g, color.b, color.a * 0.25f));
+
+                    integersInXAxis.Add((integerInAxis, integerFullLine));
                 }
             }
 
@@ -113,12 +124,23 @@ namespace Physics.Planes
                     );
                     integerInAxis.SetColor(color);
                     integerInAxis.Name = $"{integer}";
-                    integersInYAxis.Add(integerInAxis);
+
+                    Line integerFullLine = new Line(
+                       parent: integerInAxis.Object,
+                       width: thickness * 0.5f,
+                       magnitude: magnitudeY,
+                       position: Vector2.zero,
+                       pivot: Vector2.one * 0.5f,
+                       angle: 0
+                    );
+                    integerFullLine.SetColor(new Color(color.r, color.g, color.b, color.a * 0.25f));
+
+                    integersInYAxis.Add((integerInAxis, integerFullLine));
                 }
             }
 
-            integersInXAxis = integersInXAxis.OrderBy(item => int.Parse(item.Name)).ToList();
-            integersInYAxis = integersInYAxis.OrderBy(item => int.Parse(item.Name)).ToList();
+            integersInXAxis = integersInXAxis.OrderBy(item => int.Parse(item.Item1.Name)).ToList();
+            integersInYAxis = integersInYAxis.OrderBy(item => int.Parse(item.Item1.Name)).ToList();
 
             if (callback is not null)
             {
@@ -145,14 +167,16 @@ namespace Physics.Planes
             this.XAxis.SetColor(color);
             this.YAxis.SetColor(color);
 
-            foreach (Line line in this.IntegersInXAxisLines)
+            foreach ((Line, Line) line in this.IntegersInXAxisLines)
             {
-                line.SetColor(color);
+                line.Item1.SetColor(color);
+                line.Item2.SetColor(color);
             }
 
-            foreach (Line line in this.IntegersInYAxisLines)
+            foreach ((Line, Line) line in this.IntegersInYAxisLines)
             {
-                line.SetColor(color);
+                line.Item1.SetColor(color);
+                line.Item2.SetColor(color);
             }
 
             this.color = color;
@@ -168,8 +192,8 @@ namespace Physics.Planes
         internal Line XAxis { get => this.xAxis; private set => this.xAxis = value; }
         internal Line YAxis { get => this.yAxis; private set => this.yAxis = value; }
 
-        internal List<Line> IntegersInXAxisLines { get => this.integersInXAxis; private set => this.integersInXAxis = value; }
-        internal List<Line> IntegersInYAxisLines { get => this.integersInYAxis; private set => this.integersInYAxis = value; }
+        internal List<(Line, Line)> IntegersInXAxisLines { get => this.integersInXAxis; private set => this.integersInXAxis = value; }
+        internal List<(Line, Line)> IntegersInYAxisLines { get => this.integersInYAxis; private set => this.integersInYAxis = value; }
 
         internal GameObject Plane { get => this.parent; private set => this.parent = value; }
 
@@ -194,23 +218,25 @@ namespace Physics.Planes
 
             async void xAxisLines()
             {
-                foreach (Line line in plane.IntegersInXAxisLines)
+                foreach ((Line, Line) line in plane.IntegersInXAxisLines)
                 {
                     await Task.Delay(60);
                     xAxisLine(line);
                 }
             }
-            async void xAxisLine(Line line)
+            async void xAxisLine((Line, Line) line)
             {
-                float origin = line.Position.y;
+                float origin = line.Item1.Position.y;
                 float target = origin + 20;
 
                 for (float t = 0; t <= 1; t += 0.0333f)
                 {
                     float alpha = Mathematics.InverseCubicAlphaLerp(t);
 
-                    line.SetColor(new Color(planeColor.r, planeColor.g, planeColor.b, alpha));
-                    line.Position = new Vector2(line.Position.x, Mathematics.Lerp(origin, target, alpha));
+                    line.Item1.SetColor(new Color(planeColor.r, planeColor.g, planeColor.b, alpha));
+                    line.Item1.Position = new Vector2(line.Item1.Position.x, Mathematics.Lerp(origin, target, alpha));
+
+                    line.Item2.SetColor(new Color(planeColor.r, planeColor.g, planeColor.b, Mathematics.Lerp(0, 0.25f, alpha)));
 
                     await Task.Delay(16);
                 }
@@ -218,38 +244,45 @@ namespace Physics.Planes
 
             async void yAxisLines()
             {
-                foreach (Line line in plane.IntegersInYAxisLines)
+                foreach ((Line, Line) line in plane.IntegersInYAxisLines)
                 {
                     await Task.Delay(60);
                     yAxisLine(line);
                 }
             }
-            async void yAxisLine(Line line)
+            async void yAxisLine((Line, Line) line)
             {
-                float origin = line.Position.y;
+                float origin = line.Item1.Position.y;
                 float target = origin - 20;
+
 
                 for (float t = 0; t <= 1; t += 0.0333f)
                 {
                     float alpha = Mathematics.InverseCubicAlphaLerp(t);
 
-                    line.SetColor(new Color(planeColor.r, planeColor.g, planeColor.b, alpha));
-                    line.Position = new Vector2(line.Position.x, Mathematics.Lerp(origin, target, alpha));
+                    line.Item1.SetColor(new Color(planeColor.r, planeColor.g, planeColor.b, alpha));
+                    line.Item1.Position = new Vector2(line.Item1.Position.x, Mathematics.Lerp(origin, target, alpha));
+
+                    line.Item2.SetColor(new Color(planeColor.r, planeColor.g, planeColor.b, Mathematics.Lerp(0, 0.25f, alpha)));
 
                     await Task.Delay(16);
                 }
             }
 
-            foreach (Line line in plane.IntegersInXAxisLines)
+            foreach ((Line, Line) line in plane.IntegersInXAxisLines)
             {
-                line.SetColor(new Color(1, 1, 1, 0));
-                line.Position = new Vector2(line.Position.x, line.Position.y - 20);
+                line.Item1.SetColor(new Color(1, 1, 1, 0));
+                line.Item1.Position = new Vector2(line.Item1.Position.x, line.Item1.Position.y - 20);
+
+                line.Item2.SetColor(new Color(1, 1, 1, 0));
             }
 
-            foreach (Line line in plane.IntegersInYAxisLines)
+            foreach ((Line, Line) line in plane.IntegersInYAxisLines)
             {
-                line.SetColor(new Color(1, 1, 1, 0));
-                line.Position = new Vector2(line.Position.x, line.Position.y + 20);
+                line.Item1.SetColor(new Color(1, 1, 1, 0));
+                line.Item1.Position = new Vector2(line.Item1.Position.x, line.Item1.Position.y + 20);
+
+                line.Item2.SetColor(new Color(1, 1, 1, 0));
             }
 
             plane.XAxis.SetColor(new Color(0, 0, 0, 0));
