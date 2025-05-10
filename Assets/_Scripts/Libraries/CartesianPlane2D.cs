@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Unity.VisualScripting;
 using Physics.Graphics;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,8 @@ namespace Physics.Planes
 
         #region Function definitions
         internal delegate void Callback(CartesianPlane2D plane);
+
+        internal delegate float Expression(float x);
         #endregion
 
         #region Attributes
@@ -187,6 +190,47 @@ namespace Physics.Planes
         /// </summary>
         /// <returns>Color of the plane</returns>
         internal Color GetColor() => this.color;
+
+        /// <summary>
+        /// Generates a graph
+        /// </summary>
+        /// <param name="function">Function that the graph must follow</param>
+        /// <param name="color">Color of the graph</param>
+         /// <returns>Object of the graph</returns>
+        internal async void AddGraph(Expression function, Color color)
+        {
+            GameObject graph = new GameObject("Graph");
+            graph.transform.SetParent(GameObject.Find("Canvas").transform, false);
+
+            RectTransform graphTransform = graph.AddComponent<RectTransform>();
+            graphTransform.anchorMin = new Vector2(0.5f, 0.5f);
+            graphTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            graphTransform.pivot = new Vector2(0.5f, 0.5f);
+            graphTransform.anchoredPosition = this.GetPositionInPlane(0, 0);
+
+            UIPath path = graphTransform.AddComponent<UIPath>();
+            path.color = color;
+
+            List<Vector2> keyPositions = new List<Vector2>();
+
+            float index = 0;
+            for (float x = -10; x <= 10; x += 0.05f)
+            {
+                Vector2 position = this.GetPositionInPlane(x, function(x));
+                keyPositions.Add(new Vector2(-position.y, position.x));
+
+                path.SetPoints(keyPositions.ToArray());
+
+                index++;
+                index %= 10;
+
+                if (index == 0)
+                {
+                    await Task.Delay(16);
+                }
+            }
+
+        }
 
         // SETTERS & GETTERS \\
         internal Line XAxis { get => this.xAxis; private set => this.xAxis = value; }
