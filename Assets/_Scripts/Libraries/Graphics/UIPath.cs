@@ -10,6 +10,13 @@ namespace Physics.Graphics
         [SerializeField] private List<Vector2> positions = new List<Vector2>();
         [SerializeField] private float width = 5f;
 
+        internal float Width { get => width; set 
+            {
+                width = value;
+                SetVerticesDirty();
+            }
+        }
+
         internal void SetPoints(Vector2[] keyPositions)
         {
             positions.Clear();

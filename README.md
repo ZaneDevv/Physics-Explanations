@@ -58,3 +58,9 @@ using Physics.Planes;
     }
 }
 ``` 
+
+This class also counts with a method to render graph on the plane.
+
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/2481ac9a-cb9e-47d8-a11d-419c609563cb" width="70%" />
+</div>

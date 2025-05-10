@@ -197,7 +197,7 @@ namespace Physics.Planes
         /// <param name="function">Function that the graph must follow</param>
         /// <param name="color">Color of the graph</param>
          /// <returns>Object of the graph</returns>
-        internal async void AddGraph(Expression function, Color color)
+        internal async void AddGraph(Expression function, Color color, float width)
         {
             GameObject graph = new GameObject("Graph");
             graph.transform.SetParent(GameObject.Find("Canvas").transform, false);
@@ -210,6 +210,7 @@ namespace Physics.Planes
 
             UIPath path = graphTransform.AddComponent<UIPath>();
             path.color = color;
+            path.Width = width;
 
             List<Vector2> keyPositions = new List<Vector2>();
 
