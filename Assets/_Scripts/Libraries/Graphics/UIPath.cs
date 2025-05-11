@@ -25,6 +25,8 @@ namespace Physics.Graphics
             SetVerticesDirty();
         }
 
+        internal int GetPointsAmout() => positions.Count;
+
         protected override void OnPopulateMesh(VertexHelper vertexHelper)
         {
             vertexHelper.Clear();

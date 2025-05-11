@@ -197,10 +197,12 @@ namespace Physics.Planes
         /// <param name="function">Function that the graph must follow</param>
         /// <param name="color">Color of the graph</param>
          /// <returns>Object of the graph</returns>
-        internal async void AddGraph(Expression function, Color color, float width)
+        internal async void AddGraph(Expression function, Color color, float width, float speed)
         {
+            int waitingSecondsAnimation = Mathf.FloorToInt(1 / speed * (float)1e3);
+
             GameObject graph = new GameObject("Graph");
-            graph.transform.SetParent(GameObject.Find("Canvas").transform, false);
+            graph.transform.SetParent(this.parent.transform, false);
 
             RectTransform graphTransform = graph.AddComponent<RectTransform>();
             graphTransform.anchorMin = new Vector2(0.5f, 0.5f);
@@ -217,18 +219,42 @@ namespace Physics.Planes
             float index = 0;
             for (float x = -10; x <= 10; x += 0.05f)
             {
-                Vector2 position = this.GetPositionInPlane(x, function(x));
-                keyPositions.Add(new Vector2(-position.y, position.x));
+                if (index == 0 && speed > 0)
+                {
+                    await Task.Delay(waitingSecondsAnimation);
+                }
+
+                float y = function(x);
+                if (float.IsNaN(y) || Mathf.Abs(y) > integersInXAxis.Count * 0.5f)
+                {
+                    if (path.GetPointsAmout() > 0)
+                    {
+                        keyPositions.Clear();
+
+                        graph = new GameObject("Graph");
+                        graph.transform.SetParent(this.parent.transform, false);
+
+                        graphTransform = graph.AddComponent<RectTransform>();
+                        graphTransform.anchorMin = new Vector2(0.5f, 0.5f);
+                        graphTransform.anchorMax = new Vector2(0.5f, 0.5f);
+                        graphTransform.pivot = new Vector2(0.5f, 0.5f);
+                        graphTransform.anchoredPosition = this.GetPositionInPlane(0, 0);
+
+                        path = graphTransform.AddComponent<UIPath>();
+                        path.color = color;
+                        path.Width = width;
+                    }
+
+                    continue;
+                }
+
+                Vector2 position = this.GetPositionInPlane(-y, x);
+                keyPositions.Add(position);
 
                 path.SetPoints(keyPositions.ToArray());
 
                 index++;
                 index %= 10;
-
-                if (index == 0)
-                {
-                    await Task.Delay(16);
-                }
             }
 
         }

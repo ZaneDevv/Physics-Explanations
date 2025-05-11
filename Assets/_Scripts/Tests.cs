@@ -23,9 +23,8 @@ using System.Collections.Generic;
             color: new Color(1, 1, 1, 0)
         );
 
-        await Task.Delay(1000);
+        await Task.Delay(1200);
 
-        plane.AddGraph((float x) => 3*Mathf.Sin(x), new Color(0.1f, 0.75f, 0.25f), 3);
-        plane.AddGraph((float x) => 3*Mathf.Cos(x), new Color(0.75f, 0.1f, 0.25f), 3);
+        plane.AddGraph((float x) => Mathf.Tan(x), new Color(0.1f, 0.75f, 0.25f), 3, 75);
     }
 }
